@@ -10,7 +10,13 @@ add_library(${project_name}-lib
         src/AppComponent.hpp
         src/controller/MyController.cpp
         src/controller/MyController.hpp
+        src/controller/JobController.hpp
         src/dto/DTOs.hpp
+        src/dto/JobDTO.hpp
+        src/dto/ResponseDTO.hpp
+        src/models/JobModel.hpp
+        src/services/JobService.hpp
+        src/services/JobService.cpp
 )
 
 ## link libs

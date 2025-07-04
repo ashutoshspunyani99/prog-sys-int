@@ -1,4 +1,7 @@
 #include "./controller/MyController.hpp"
+#include "./controller/JobController.hpp"
+#include "./controller/ProgrammingController.hpp"
+#include "./controller/RobotController.hpp"
 #include "./AppComponent.hpp"
 
 #include "oatpp/network/Server.hpp"
@@ -15,6 +18,7 @@ void run() {
 
   /* Create MyController and add all of its endpoints to router */
   router->addController(std::make_shared<MyController>());
+  router->addController(std::make_shared<JobController>());
 
   /* Get connection handler component */
   OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler);
