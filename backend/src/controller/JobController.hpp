@@ -3,7 +3,7 @@
 
 #include "dto/JobDTO.hpp"
 #include "dto/ResponseDTO.hpp"
-#include "services/JobService.hpp"
+#include "adapters/JobAdapter.hpp"
 #include "utility/JobDTOMapper.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
@@ -17,82 +17,47 @@
  */
 class JobController : public oatpp::web::server::api::ApiController {
 private:
-    OATPP_COMPONENT(std::shared_ptr<JobService>, jobService);
-public:
-  /**
-   * Constructor with object mapper.
-   * @param apiContentMappers - mappers used to serialize/deserialize DTOs.
-   */
-  JobController(OATPP_COMPONENT(std::shared_ptr<oatpp::web::mime::ContentMappers>, apiContentMappers))
-    : oatpp::web::server::api::ApiController(apiContentMappers)
-  {}
-public:
-  
-  ENDPOINT("POST", "api/job/start", startJob, BODY_DTO(Object<JobStartDto>, body)) {
-    bool isJobStarted= jobService->startNewJob(body->requiredQuantity);
-    auto resData = ResponseDto::createShared();
-    if (isJobStarted) {
-    resData->statusCode = 200;
-    resData->message = "Job started successfully";
-    return createDtoResponse(Status::CODE_200, resData);}
-    else {
-      resData->statusCode = 400;
-      resData->message = "Job is already running or paused";
-      return createDtoResponse(Status::CODE_400, resData);
-    }
+    std::shared_ptr<JobAdapter> jobAdapter;
+
+  public:
+    /**
+     * Constructor with object mapper.
+     * @param apiContentMappers - mappers used to serialize/deserialize DTOs.
+     */
+    JobController(
+        OATPP_COMPONENT(std::shared_ptr<oatpp::web::mime::ContentMappers>,
+                        apiContentMappers),
+        OATPP_COMPONENT(std::shared_ptr<JobService>, jobService))
+        : oatpp::web::server::api::ApiController(apiContentMappers),
+          jobAdapter(std::make_shared<JobAdapter>(jobService)) {}
+
+  public:
+    ENDPOINT("POST", "api/job/start", startJob,
+             BODY_DTO(Object<JobStartDto>, body)) {
+      auto responseWrapper =
+          jobAdapter->startJobResponse(body->requiredQuantity);
+      return createDtoResponse(responseWrapper.second, responseWrapper.first);
   }
 
   ENDPOINT("POST", "api/job/stop", stopJob) {
-    bool isJobStopped= jobService->stopCurrentJob();
-    auto resData = ResponseDto::createShared();
-    if (isJobStopped) {
-    resData->statusCode = 200;
-    resData->message = "Job stopped successfully";
-    return createDtoResponse(Status::CODE_200, resData);}
-    else {
-      resData->statusCode = 400;
-      resData->message = "No job is currently running or paused";
-      return createDtoResponse(Status::CODE_400, resData);
-    }
+    auto responseWrapper = jobAdapter->stopJobResponse();
+    return createDtoResponse(responseWrapper.second, responseWrapper.first);
   }
 
   ENDPOINT("POST", "api/job/pause", pauseJob) {
-    bool isJobPaused= jobService->pauseCurrentJob();
-    auto resData = ResponseDto::createShared();
-    if (isJobPaused) {
-    resData->statusCode = 200;
-    resData->message = "Job paused successfully";
-    return createDtoResponse(Status::CODE_200, resData);}
-    else {
-      resData->statusCode = 400;
-      resData->message = "No job is currently running";
-      return createDtoResponse(Status::CODE_400, resData);
-    }
+    auto responseWrapper = jobAdapter->pauseJobResponse();
+    return createDtoResponse(responseWrapper.second, responseWrapper.first);
   }
 
   ENDPOINT("POST", "api/job/resume", resumeJob) {
-    bool isJobResumed= jobService->resumeCurrentJob();
-    auto resData = ResponseDto::createShared();
-    if (isJobResumed) {
-    resData->statusCode = 200;
-    resData->message = "Job resumed successfully";
-    return createDtoResponse(Status::CODE_200, resData);}
-    else {
-      resData->statusCode = 400;
-      resData->message = "No job is currently paused";
-      return createDtoResponse(Status::CODE_400, resData);
-    }
+    auto responseWrapper = jobAdapter->resumeJobResponse();
+    return createDtoResponse(responseWrapper.second, responseWrapper.first);
   }
 
     ENDPOINT("GET", "api/job/status", getJobStatus) {
-        auto jobData = jobService->getJobModel();
-        auto jobDto = JobDTOMapper::toDto(jobData);
-        auto resData = ResponseDataDto<oatpp::Object<JobStatusDto>>::createShared();
-        resData->statusCode = 200;
-        resData->message = "Job status retrieved successfully";
-        resData->data = jobDto;
-
-        return createDtoResponse(Status::CODE_200, resData);
+      auto responseWrapper =
+          jobAdapter->getJobStatusResponse();
+      return createDtoResponse(responseWrapper.second, responseWrapper.first);
     }
 
   

@@ -8,6 +8,10 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_library(${project_name}-lib
         src/AppComponent.hpp
+        src/adapters/JobAdapter.hpp
+        src/adapters/JobAdapter.cpp
+        src/adapters/SiteAdapter.hpp
+        src/adapters/SiteAdapter.cpp
         src/controller/MyController.cpp
         src/controller/MyController.hpp
         src/controller/JobController.hpp
@@ -27,6 +31,8 @@ add_library(${project_name}-lib
         src/services/SiteService.cpp
         src/utility/SiteDTOMapper.hpp
         src/utility/SiteDTOMapper.cpp
+        src/utility/OatppUtils.hpp
+        src/utility/OatppUtils.cpp
         src/utility/JobDTOMapper.cpp
         src/utility/JobDTOMapper.hpp
 

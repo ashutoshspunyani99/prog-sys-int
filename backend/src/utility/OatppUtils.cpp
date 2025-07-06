@@ -3,11 +3,11 @@
 namespace OatppUtils {
 
 oatpp::Vector<oatpp::Int32> toOatppVector(const std::vector<int>& input) {
-    oatpp::Vector<oatpp::Int32> output;
-    for (int val : input) {
-        output->push_back(val);
-    }
-    return output;
+  auto output = oatpp::Vector<oatpp::Int32>::createShared();
+  for (int val : input) {
+    output->push_back(val);
+  }
+  return output;
 }
 
 

@@ -14,7 +14,7 @@ class ResponseDto : public oatpp::DTO {
   DTO_FIELD(String, message);
 };
 
-template <typename T>;
+template <typename T>
 class ResponseDataDto : public oatpp::DTO {
   DTO_INIT(ResponseDataDto<T>, DTO);
 
