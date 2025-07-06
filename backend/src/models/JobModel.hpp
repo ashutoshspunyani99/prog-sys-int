@@ -11,13 +11,19 @@ enum class JobStatus {
     STOPPED  
 };
 
+struct JobData {
+    int requiredQuantity;
+    int completedQuantity;
+    JobStatus jobStatus; 
+};
+
 class JobModel {
 public:
     std::mutex jobMutex;
 
     int requiredQuantity = 0;
     int completedQuantity = 0;
-    JobStatus status = JobStatus::IDLE;
+    JobStatus jobStatus = JobStatus::IDLE;
 };
 
 #endif /* JobModel_hpp */

@@ -8,10 +8,18 @@
 
 class JobStartDto : public oatpp::DTO {
   
-  DTO_INIT(JobStartDto, DTO)
+  DTO_INIT(JobStartDto, DTO);
   DTO_FIELD(Int32, requiredQuantity); 
 };
 
+
+class JobStatusDto : public oatpp::DTO {
+  
+    DTO_INIT(JobStatusDto, DTO);
+    DTO_FIELD(String, jobStatus); 
+    DTO_FIELD(Int32, requiredQuantity);
+    DTO_FIELD(Int32, completedQuantity); 
+  };
 #include OATPP_CODEGEN_END(DTO)
 
 #endif /* JobDTO_hpp */

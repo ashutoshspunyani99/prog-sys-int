@@ -3,6 +3,7 @@
 
 #include "models/JobModel.hpp"
 #include <memory>
+#include <iostream>
 
 
 class JobService {
@@ -15,6 +16,16 @@ public:
     bool stopCurrentJob();
     bool pauseCurrentJob();
     bool resumeCurrentJob();
+    void incrementCompletedQuantity();
+    JobStatus getJobStatus();
+    int getRequiredQuantity();
+    int getCompletedQuantity();
+    JobData getJobModel();
+    bool isJobRunning();
+    bool isJobPaused();
+    bool isJobStopped();
+    bool isJobCompleted();
+
 };
 
 #endif /* JobService_hpp */
