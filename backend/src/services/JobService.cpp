@@ -37,6 +37,8 @@ bool JobService::stopCurrentJob() {
     if (job->jobStatus == JobStatus::RUNNING || job->jobStatus == JobStatus::PAUSED) {
         job->requiredQuantity = 0;
         job->completedQuantity = 0;
+        job->passedQuantity = 0;
+        job->failedQuantity = 0;
         job->jobStatus = JobStatus::STOPPED;
         return true; 
     }
