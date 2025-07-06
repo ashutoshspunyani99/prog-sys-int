@@ -53,6 +53,21 @@ public:
 
   }());
 
+
+  OATPP_CREATE_COMPONENT(std::shared_ptr<JobService>, jobService)([] {
+    return std::make_shared<JobService>();
+  }());
+
+  OATPP_CREATE_COMPONENT(std::shared_ptr<SiteService>, siteService)([] {
+    OATPP_COMPONENT(std::shared_ptr<JobService>, jobService);
+    return std::make_shared<SiteService>(jobService);
+  }());
+
+  OATPP_CREATE_COMPONENT(std::shared_ptr<SiteAdapter>, siteAdapter)([] {
+    OATPP_COMPONENT(std::shared_ptr<SiteService>, siteService);
+    return std::make_shared<SiteAdapter>(siteService);
+  }());
+
 };
 
 #endif /* AppComponent_hpp */

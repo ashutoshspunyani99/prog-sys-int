@@ -19,6 +19,8 @@ void run() {
   /* Create MyController and add all of its endpoints to router */
   router->addController(std::make_shared<MyController>());
   router->addController(std::make_shared<JobController>());
+  router->addController(std::make_shared<ProgrammingController>());
+  router->addController(std::make_shared<RobotController>());
 
   /* Get connection handler component */
   OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler);

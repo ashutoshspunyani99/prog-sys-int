@@ -11,12 +11,25 @@ add_library(${project_name}-lib
         src/controller/MyController.cpp
         src/controller/MyController.hpp
         src/controller/JobController.hpp
+        src/controller/ProgrammingController.hpp
+        src/controller/RobotController.hpp
         src/dto/DTOs.hpp
         src/dto/JobDTO.hpp
         src/dto/ResponseDTO.hpp
+        src/dto/SiteDTO.hpp
+        src/dto/SocketDTO.hpp
         src/models/JobModel.hpp
+        src/models/SiteModel.hpp
+        src/models/SocketModel.hpp
         src/services/JobService.hpp
         src/services/JobService.cpp
+        src/services/SiteService.hpp
+        src/services/SiteService.cpp
+        src/utility/SiteDTOMapper.hpp
+        src/utility/SiteDTOMapper.cpp
+        src/utility/JobDTOMapper.cpp
+        src/utility/JobDTOMapper.hpp
+
 )
 
 ## link libs

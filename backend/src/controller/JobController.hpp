@@ -4,6 +4,7 @@
 #include "dto/JobDTO.hpp"
 #include "dto/ResponseDTO.hpp"
 #include "services/JobService.hpp"
+#include "utility/JobDTOMapper.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/macro/codegen.hpp"
@@ -16,14 +17,14 @@
  */
 class JobController : public oatpp::web::server::api::ApiController {
 private:
-    std::shared_ptr<JobService> jobService;
+    OATPP_COMPONENT(std::shared_ptr<JobService>, jobService);
 public:
   /**
    * Constructor with object mapper.
    * @param apiContentMappers - mappers used to serialize/deserialize DTOs.
    */
   JobController(OATPP_COMPONENT(std::shared_ptr<oatpp::web::mime::ContentMappers>, apiContentMappers))
-    : oatpp::web::server::api::ApiController(apiContentMappers),jobService(std::make_shared<JobService>())
+    : oatpp::web::server::api::ApiController(apiContentMappers)
   {}
 public:
   
@@ -82,6 +83,18 @@ public:
       return createDtoResponse(Status::CODE_400, resData);
     }
   }
+
+    ENDPOINT("GET", "api/job/status", getJobStatus) {
+        auto jobData = jobService->getJobModel();
+        auto jobDto = JobDTOMapper::toDto(jobData);
+        auto resData = ResponseDataDto<oatpp::Object<JobStatusDto>>::createShared();
+        resData->statusCode = 200;
+        resData->message = "Job status retrieved successfully";
+        resData->data = jobDto;
+
+        return createDtoResponse(Status::CODE_200, resData);
+    }
+
   
   
 };
