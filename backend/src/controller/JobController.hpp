@@ -32,6 +32,7 @@ private:
           jobAdapter(std::make_shared<JobAdapter>(jobService)) {}
 
   public:
+    ADD_CORS(startJob);
     ENDPOINT("POST", "api/job/start", startJob,
              BODY_DTO(Object<JobStartDto>, body)) {
       auto responseWrapper =
@@ -39,28 +40,30 @@ private:
       return createDtoResponse(responseWrapper.second, responseWrapper.first);
   }
 
+  ADD_CORS(stopJob);
   ENDPOINT("POST", "api/job/stop", stopJob) {
     auto responseWrapper = jobAdapter->stopJobResponse();
     return createDtoResponse(responseWrapper.second, responseWrapper.first);
   }
 
+  ADD_CORS(pauseJob);
   ENDPOINT("POST", "api/job/pause", pauseJob) {
     auto responseWrapper = jobAdapter->pauseJobResponse();
     return createDtoResponse(responseWrapper.second, responseWrapper.first);
   }
 
+  ADD_CORS(resumeJob);
   ENDPOINT("POST", "api/job/resume", resumeJob) {
     auto responseWrapper = jobAdapter->resumeJobResponse();
     return createDtoResponse(responseWrapper.second, responseWrapper.first);
   }
-
+  
+  ADD_CORS(getJobStatus);
     ENDPOINT("GET", "api/job/status", getJobStatus) {
       auto responseWrapper =
           jobAdapter->getJobStatusResponse();
       return createDtoResponse(responseWrapper.second, responseWrapper.first);
     }
-
-  
   
 };
 

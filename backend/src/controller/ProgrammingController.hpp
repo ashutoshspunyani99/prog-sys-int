@@ -27,7 +27,8 @@ public:
     : oatpp::web::server::api::ApiController(apiContentMappers),siteService(siteService)
   {}
 public:
-  
+
+  ADD_CORS(getSiteSockets);
   ENDPOINT("GET", "api/programming/sockets", getSiteSockets, QUERY(Int32, siteId)) {
     std::vector<SiteStatusData> sitesData = siteService->getSiteStatusById(siteId);
     auto siteResponseDto = ProgrammingSitesResponseDto::createShared();
