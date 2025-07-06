@@ -4,6 +4,8 @@ oatpp::Object<JobStatusDto> JobDTOMapper::toDto(const JobData& jobData) {
   auto jobDto = JobStatusDto::createShared();
   jobDto->requiredQuantity = jobData.requiredQuantity;
   jobDto->completedQuantity = jobData.completedQuantity;
+  jobDto->passedQuantity = jobData.passedQuantity;
+  jobDto->failedQuantity = jobData.failedQuantity;
 
   switch (jobData.jobStatus) {
     case JobStatus::IDLE:

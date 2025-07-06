@@ -19,6 +19,8 @@ class JobStatusDto : public oatpp::DTO {
     DTO_FIELD(String, jobStatus); 
     DTO_FIELD(Int32, requiredQuantity);
     DTO_FIELD(Int32, completedQuantity); 
+    DTO_FIELD(Int32, passedQuantity);
+    DTO_FIELD(Int32, failedQuantity);
   };
 #include OATPP_CODEGEN_END(DTO)
 

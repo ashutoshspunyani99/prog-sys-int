@@ -12,6 +12,12 @@ ResponseWrapper<oatpp::Vector<oatpp::Int32>> SiteAdapter::getReadyToPlaceSockets
     res->data = {};
     return std::make_pair(res, OatppUtils::getHttpStatus(400));
   }
+  if (siteService->isJobCompleted()) {
+    res->statusCode = 400;
+    res->message = "Job is already completed";
+    res->data = {};
+    return std::make_pair(res, OatppUtils::getHttpStatus(400));
+  }
 
   auto sockets = siteService->getReadyToPlaceSockets();
   if (sockets.empty()) {
@@ -33,6 +39,12 @@ SiteAdapter::getReadyToPickSocketsResponse() {
   if (!siteService->ensureJobRunning()) {
     res->statusCode = 400;
     res->message = "No job is currently running";
+    res->data = {};
+    return std::make_pair(res, OatppUtils::getHttpStatus(400));
+  }
+  if (siteService->isJobCompleted()) {
+    res->statusCode = 400;
+    res->message = "Job is already completed";
     res->data = {};
     return std::make_pair(res, OatppUtils::getHttpStatus(400));
   }
@@ -59,6 +71,13 @@ ResponseWrapper<oatpp::String> SiteAdapter::placeDeviceResponse(int socketId) {
     return std::make_pair(res, OatppUtils::getHttpStatus(400));
   }
 
+  if (siteService->isJobCompleted()) {
+    res->statusCode = 400;
+    res->message = "Job is already completed";
+    res->data = nullptr;
+    return std::make_pair(res, OatppUtils::getHttpStatus(400));
+  }
+
   bool success = siteService->placeDevice(socketId);
   if (success) {
     res->statusCode = 200;
@@ -78,6 +97,13 @@ ResponseWrapper<oatpp::String> SiteAdapter::pickDeviceResponse(int socketId) {
   if (!siteService->ensureJobRunning()) {
     res->statusCode = 400;
     res->message = "No job is currently running";
+    res->data = nullptr;
+    return std::make_pair(res, OatppUtils::getHttpStatus(400));
+  }
+
+  if (siteService->isJobCompleted()) {
+    res->statusCode = 400;
+    res->message = "Job is already completed";
     res->data = nullptr;
     return std::make_pair(res, OatppUtils::getHttpStatus(400));
   }

@@ -8,14 +8,6 @@ bool JobService::isJobCompleted() {
     std::lock_guard<std::mutex> lock(job->jobMutex);
     return job->jobStatus == JobStatus::COMPLETED;
 }
-bool JobService::isJobPaused() {
-    std::lock_guard<std::mutex> lock(job->jobMutex);
-    return job->jobStatus == JobStatus::PAUSED;
-}
-bool JobService::isJobStopped() {
-    std::lock_guard<std::mutex> lock(job->jobMutex);
-    return job->jobStatus == JobStatus::STOPPED;
-}
 
 bool JobService::isJobRunning() {
     std::lock_guard<std::mutex> lock(job->jobMutex);
@@ -34,6 +26,8 @@ bool JobService::startNewJob(int requiredQuantity) {
 
     job->requiredQuantity = requiredQuantity;
     job->completedQuantity = 0;
+    job->passedQuantity = 0;
+    job->failedQuantity = 0;
     job->jobStatus = JobStatus::RUNNING;
     return true;
 }
@@ -74,28 +68,31 @@ void JobService::incrementCompletedQuantity() {
     std::cout << "Completed Quantity before increment: " 
               << job->completedQuantity << std::endl;
     std::cout << "Required Quantity: "  
-              << job->requiredQuantity << std::endl;    
+              << job->requiredQuantity << std::endl;  
+    std::cout<< "Job Passed Quantity: " 
+              << job->passedQuantity << std::endl;
+    std::cout<< "Job Failed Quantity: " 
+              << job->failedQuantity << std::endl;
     if (job->jobStatus == JobStatus::RUNNING) {
         job->completedQuantity++;
+        job->passedQuantity++;
         if (job->completedQuantity >= job->requiredQuantity) {
             job->jobStatus = JobStatus::COMPLETED;
         }
     }
 }
-
-JobStatus JobService::getJobStatus() {
+void JobService::incrementFailedQuantity() {
     std::lock_guard<std::mutex> lock(job->jobMutex);
-    return job->jobStatus;
-}           
-
-int JobService::getRequiredQuantity() {
-    std::lock_guard<std::mutex> lock(job->jobMutex);
-    return job->requiredQuantity;
-}
-
-int JobService::getCompletedQuantity() {
-    std::lock_guard<std::mutex> lock(job->jobMutex);
-    return job->completedQuantity;
+    std::cout << "Incrementing Failed quantity for job. Current status: "
+              << static_cast<int>(job->jobStatus) << std::endl;
+    std::cout << "Failed Quantity before increment: "
+              << job->failedQuantity << std::endl;
+    std::cout << "Required Quantity: " << job->requiredQuantity << std::endl;
+    std::cout << "Completed Quantity: " << job->completedQuantity << std::endl;
+    std::cout << "Job Passed Quantity: " << job->passedQuantity << std::endl;
+    if (job->jobStatus == JobStatus::RUNNING) {
+        job->failedQuantity++;
+    }
 }
 
 JobData JobService::getJobModel() {
@@ -103,10 +100,14 @@ JobData JobService::getJobModel() {
     JobData jobData;
     jobData.requiredQuantity = job->requiredQuantity;
     jobData.completedQuantity = job->completedQuantity;
+    jobData.passedQuantity = job->passedQuantity;
+    jobData.failedQuantity = job->failedQuantity;
     jobData.jobStatus = job->jobStatus;
     std::cout << "Job Status: " << static_cast<int>(jobData.jobStatus) << std::endl;
     std::cout << "Required Quantity: " << jobData.requiredQuantity << std::endl;
     std::cout << "Completed Quantity: " << jobData.completedQuantity << std::endl;
+    std::cout << "Passed Quantity: " << jobData.passedQuantity << std::endl;
+    std::cout << "Failed Quantity: " << jobData.failedQuantity << std::endl;
     return jobData;
 }
 

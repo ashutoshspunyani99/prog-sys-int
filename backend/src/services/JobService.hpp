@@ -17,15 +17,10 @@ public:
     bool pauseCurrentJob();
     bool resumeCurrentJob();
     void incrementCompletedQuantity();
-    JobStatus getJobStatus();
-    int getRequiredQuantity();
-    int getCompletedQuantity();
     JobData getJobModel();
     bool isJobRunning();
-    bool isJobPaused();
-    bool isJobStopped();
     bool isJobCompleted();
-
+    void incrementFailedQuantity();
 };
 
 #endif /* JobService_hpp */
