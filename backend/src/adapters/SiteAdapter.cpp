@@ -122,3 +122,28 @@ ResponseWrapper<oatpp::String> SiteAdapter::pickDeviceResponse(int socketId) {
     return std::make_pair(res, OatppUtils::getHttpStatus(400));
   }
 }
+
+ResponseWrapper<oatpp::Vector<oatpp::Object<SiteDto>>>
+SiteAdapter::getProgrammingSocketsResponse(int siteId) {
+  auto res =
+      ResponseDataDto<oatpp::Vector<oatpp::Object<SiteDto>>>::createShared();
+
+  auto sitesData = siteService->getSiteStatusById(siteId);
+  if (sitesData.empty()) {
+    res->statusCode = 404;
+    res->message = "No site found with the given ID";
+    res->data = {};
+    return std::make_pair(res, OatppUtils::getHttpStatus(404));
+  }
+
+  auto siteDtos = oatpp::Vector<oatpp::Object<SiteDto>>::createShared();
+  for (const auto &site : sitesData) {
+    siteDtos->push_back(SiteDtoMapper::toDto(site));
+  }
+
+  res->statusCode = 200;
+  res->message = "Sockets status retrieved successfully";
+  res->data = siteDtos;
+
+  return std::make_pair(res, OatppUtils::getHttpStatus(200));
+}

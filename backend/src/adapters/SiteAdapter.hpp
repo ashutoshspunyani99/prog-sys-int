@@ -5,6 +5,8 @@
 #include "dto/ResponseDTO.hpp"
 #include "models/SiteModel.hpp"
 #include "utility/OatppUtils.hpp"
+#include "dto/SiteDTO.hpp" 
+#include "utility/SiteDTOMapper.hpp"
 
 #include <iostream>
 #include <memory>
@@ -25,6 +27,7 @@ public:
   ResponseWrapper<oatpp::String> placeDeviceResponse(int socketId);
 
   ResponseWrapper<oatpp::String> pickDeviceResponse(int socketId);
+  ResponseWrapper<oatpp::Vector<oatpp::Object<SiteDto>>> getProgrammingSocketsResponse(int siteId);
 };
 
 #endif /* SiteAdapter_hpp */
