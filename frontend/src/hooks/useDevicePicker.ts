@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useApiWrapper } from './useApiWrapper';
 
 export const useDevicePicker = ({
@@ -15,6 +15,7 @@ export const useDevicePicker = ({
     pickDevice: (socketId: number) => Promise<any>;
 }) => {
     const apiWrapper = useApiWrapper();
+    const pickedSocketsRef = useRef<Set<number>>(new Set());
     useEffect(() => {
         console.info('[DevicePicker] Polling started');
 
@@ -32,6 +33,12 @@ export const useDevicePicker = ({
                     const pickSockets: number[] = Array.isArray(resp?.data?.data) ? resp!.data!.data : [];
 
                     for (const socketId of pickSockets) {
+                        if (pickedSocketsRef.current.has(socketId)) {
+                            continue;
+                          }
+
+                        pickedSocketsRef.current.add(socketId);
+                        setTimeout(() => pickedSocketsRef.current.delete(socketId), 5000);
                         await new Promise((res) => setTimeout(res, 3000));
 
                         await apiWrapper(() => pickDevice(socketId), {
@@ -57,7 +64,8 @@ export const useDevicePicker = ({
 
         return () => {
             console.info('[DevicePicker] Polling stopped');
-            clearInterval(interval)
+            clearInterval(interval);
+            pickedSocketsRef.current.clear();
         };
     }, [jobRunning, robotEnabled]);
 };
