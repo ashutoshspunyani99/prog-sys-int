@@ -1,4 +1,3 @@
-# prog-sys-int
 # 📦 BPM Programming System Integration (Technical Assessment)
 
 This is a full-stack application built as part of a **technical assessment** for **BPM Microsystems**. The goal was to design and implement a simulation of an automated programming system that coordinates:
