@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useApiWrapper } from './useApiWrapper';
 
 export const useDevicePicker = ({
@@ -15,42 +15,46 @@ export const useDevicePicker = ({
     pickDevice: (socketId: number) => Promise<any>;
 }) => {
     const apiWrapper = useApiWrapper();
+    const pickedSocketsRef = useRef<Set<number>>(new Set());
     useEffect(() => {
-        console.log("Device Picker Hook initialized");
+        console.info('[DevicePicker] Polling started');
 
         const interval = setInterval(() => {
             if (!jobRunning || !robotEnabled) return;
 
             const runPicking = async () => {
-                console.log("runPicking triggered");
                 try {
-                    console.log("Checking for devices to pick...");
                     const resp = await apiWrapper(() => getReadyToPick(), {
                         context: 'getReadyToPick',
                         notifyFailure: true,
                     });
 
-                    
+
                     const pickSockets: number[] = Array.isArray(resp?.data?.data) ? resp!.data!.data : [];
 
                     for (const socketId of pickSockets) {
-                        await new Promise((res) => setTimeout(res, 3000)); 
+                        if (pickedSocketsRef.current.has(socketId)) {
+                            continue;
+                          }
+
+                        pickedSocketsRef.current.add(socketId);
+                        setTimeout(() => pickedSocketsRef.current.delete(socketId), 5000);
+                        await new Promise((res) => setTimeout(res, 3000));
 
                         await apiWrapper(() => pickDevice(socketId), {
-                            context: 'pickDevice',
+                            context: `pickDevice [Socket ${socketId}]`,
                             notifySuccess: true,
                         });
-                        console.log(`Picked device from socket ${socketId}`);
                         await fetchSockets();
                     }
-                } catch (err:unknown) {
+                } catch (err: unknown) {
                     if (
                         typeof err === 'object' &&
                         err !== null &&
                         'response' in err &&
                         (err as any).response?.status !== 404
                     ) {
-                        console.error('Pick error:', (err as any).message || err);
+                        console.error('[DevicePicker] Unexpected error:', err);
                     }
                 }
             };
@@ -58,6 +62,10 @@ export const useDevicePicker = ({
             runPicking();
         }, 5000);
 
-        return () => clearInterval(interval);
+        return () => {
+            console.info('[DevicePicker] Polling stopped');
+            clearInterval(interval);
+            pickedSocketsRef.current.clear();
+        };
     }, [jobRunning, robotEnabled]);
 };

@@ -148,7 +148,7 @@ void RobotControllerTest::onRun() {
 
         OATPP_LOGd("TEST", "Waiting for site programming to complete...");
         std::this_thread::sleep_for(
-            std::chrono::seconds(25)); 
+            std::chrono::seconds(8)); 
 
         OATPP_LOGd("TEST", "Running: readyToPick (after programming)");
         auto readyToPickResponse2 = client->readyToPick();

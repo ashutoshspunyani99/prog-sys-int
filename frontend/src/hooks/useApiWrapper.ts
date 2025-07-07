@@ -28,6 +28,7 @@ export function useApiWrapper() {
 
             const successMessage = res?.data?.message;
             if (notifySuccess && successMessage) {
+                console.info(`[${context}] Success: ${res.data.message}`);
                 snackbar.showSnackbar(successMessage, 'success');
             }
 
@@ -37,7 +38,7 @@ export function useApiWrapper() {
                 err.response?.data?.message || err.message || 'Unknown error';
 
             if (!suppressErrors) {
-                console.error(`❌ API Error${context ? ` in ${context}` : ''}:`, failureMessage);
+                console.error(`API Error${context ? ` in ${context}` : ''}:`, failureMessage);
             }
 
             if (notifyFailure) {

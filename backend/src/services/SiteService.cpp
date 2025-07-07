@@ -5,11 +5,13 @@ SiteService::SiteService(   std::shared_ptr<JobService> jobService) : jobService
     for (int i = 0; i < 2; i++) { 
         sites.push_back(std::make_shared<SiteModel>(i));
     }
+    std::cout << "[INFO] SiteService: Initialized with " << sites.size()
+              << " sites." << std::endl;
 }
 
 bool SiteService::ensureJobRunning()  {
     if (!jobService->isJobRunning()) {
-        std::cout << "[SiteService] Operation denied. No job is currently running.\n";
+         std::cout << "[WARN] SiteService: Operation denied. No job is currently running." << std::endl;;
         return false;
     }
     return true;
@@ -17,7 +19,7 @@ bool SiteService::ensureJobRunning()  {
 
 bool SiteService::isJobCompleted()  {
     if (!jobService->isJobRunning()) {
-        std::cout << "[SiteService] Operation denied. No job is currently running.\n";
+         std::cout << "[WARN] SiteService: Operation denied. No job is currently running." << std::endl;;
         return false;
     }
     return jobService->isJobCompleted();
@@ -58,21 +60,14 @@ std::vector<int> SiteService::getReadyToPickSockets() {
 bool SiteService::placeDevice(int socketId) {
     if (socketId < 0 || socketId >= sites.size() * 4) 
         return false; 
-    std::cout << "Placing device in socket: " << socketId << std::endl;
     int siteId = socketId / 4;
     int socketIndex = socketId % 4;
-    std::cout << "Site ID: " << siteId << ", Socket Index: " << socketIndex << std::endl;
-    std::cout << "Total Sites: " << sites.size() << std::endl;
     if (siteId < 0 || siteId >= sites.size() || socketIndex < 0 || socketIndex >= 4) 
         return false;
-    std::cout << "Valid site and socket index." << std::endl;
     auto& site = *sites[siteId];
     std::lock_guard<std::mutex> siteLock(site.siteMutex);
-    std::cout << "Acquired site lock for site ID: " << siteId << std::endl;
-    std::cout << "Site Status: " << static_cast<int>(site.siteStatus) << std::endl;
     if (site.siteStatus != SiteStatus::IDLE)
         return false;
-    std::cout << "Site is idle, proceeding to place device." << std::endl;
     auto& socket = *site.sockets[socketIndex];
     
     {
@@ -81,7 +76,6 @@ bool SiteService::placeDevice(int socketId) {
 
         return false;
     }
-    std::cout << "Socket is ready for placement." << std::endl;
     socket.isSocketPlaced = true;
     socket.programmingResult = SocketProgrammingResult::NONE;
     }
@@ -94,40 +88,30 @@ bool SiteService::placeDevice(int socketId) {
             break;
         }
     }
-    std::cout << "Checked all sockets for placement status." << std::endl;
-    std::cout << "--------------------------------------------- " << std::endl;
-    std::cout<< "Is all sockets placed: " << isAllSocketsPlaced << std::endl;
-    std::cout << "--------------------------------------------- " << std::endl;
     if (isAllSocketsPlaced && site.siteStatus == SiteStatus::IDLE) {
         site.siteStatus = SiteStatus::ACTIVE;
-        std::cout << "Site Status: " << static_cast<int>(site.siteStatus) << std::endl;
-        std::cout << "All sockets placed, changing site status to ACTIVE." << std::endl;
+        std::cout << "[INFO] SiteService: All sockets placed in site " << siteId
+                  << ". Status set to ACTIVE." << std::endl;
         std::thread([this, siteId]() {
             siteProgramming(siteId);  
         }).detach();
 
     }
-    std::cout << "Device placed successfully in socket: " << socketId << std::endl;
-    
+    std::cout << "[INFO] SiteService: Device placed in socket " << socketId
+              << ". Socket status updated." << std::endl;    
     return true; 
 }
 
 bool SiteService::pickDevice(int socketId) {
 
-    std::cout << "Picking device from socket: " << socketId << std::endl;
     if (socketId < 0 || socketId >= sites.size() * 4) 
     return false; 
-    std::cout << "Valid socket ID." << std::endl;
 int siteId = socketId / 4;
 int socketIndex = socketId % 4;
-std::cout << "Site ID: " << siteId << ", Socket Index: " << socketIndex << std::endl;
 if (siteId < 0 || siteId >= sites.size() || socketIndex < 0 || socketIndex >= 4) 
     return false;
-std::cout << "Valid site and socket index." << std::endl;
 auto& site = *sites[siteId];
 std::lock_guard<std::mutex> siteLock(site.siteMutex);
-std::cout << "Acquired site lock for site ID: " << siteId << std::endl;
-std::cout << "Site Status: " << static_cast<int>(site.siteStatus) << std::endl;
 if (site.siteStatus != SiteStatus::COMPLETED)
     return false;
 auto& socket = *site.sockets[socketIndex];
@@ -138,16 +122,14 @@ std::lock_guard<std::mutex> socketLock(socket.socketMutex);
     if (!socket.isSocketPlaced || !socket.isSocketReadyForPick || socket.isSocketPicked) 
     return false;
 if(socket.programmingResult==  SocketProgrammingResult::PASSED) {
-    std::cout << "Socket programming passed, ready to pick." << std::endl;
+    
     jobService->incrementCompletedQuantity();
     
 }
 else if (socket.programmingResult == SocketProgrammingResult::FAILED) {
-    std::cout << "Socket programming failed, cannot pick." << std::endl;
     jobService->incrementFailedQuantity();
 }
 
-std::cout << "Socket is ready for picking." << std::endl;
 socket.isSocketPicked = true;
 }
 bool isAllSocketsPickedUp = true;
@@ -155,20 +137,11 @@ bool isAllSocketsPickedUp = true;
 for (auto& socketPtr : site.sockets) {
     auto& s = *socketPtr;
     std::lock_guard<std::mutex> socketPickedLock(s.socketMutex);
-    // std::cout << "Checking socket ID: " << s.socketId << std::endl;
-    // std::cout << "Socket Placed: " << s.isSocketPlaced << ", Socket Ready For Pick: " << s.isSocketReadyForPick << std::endl;
-    // std::cout << "--------------------------------------------- " << std::endl;
-    // std::cout << "Socket Status: " << static_cast<int>(s.programmingResult) << std::endl;
-    // std::cout << "--------------------------------------------- " << std::endl;
     if (!s.isSocketPicked) {
-        // std::cout << "Socket ID: " << s.socketId << " is not picked yet." << std::endl;
         isAllSocketsPickedUp = false;
         break;
     }
 }
-    std::cout << "--------------------------------------------- " << std::endl;
-    std::cout<< "Is all sockets picked: " << isAllSocketsPickedUp << std::endl;
-    std::cout << "--------------------------------------------- " << std::endl;
 if (isAllSocketsPickedUp && site.siteStatus == SiteStatus::COMPLETED) {
     for (auto& socketPtr : site.sockets) {
         auto& s = *socketPtr;
@@ -177,11 +150,10 @@ if (isAllSocketsPickedUp && site.siteStatus == SiteStatus::COMPLETED) {
         s.isSocketReadyForPick = false;
         s.isSocketPicked = false;
         s.programmingResult = SocketProgrammingResult::NONE;
-        std::cout << "Resetting socket ID: " << s.socketId << " to initial state." << std::endl;
     }
     site.siteStatus = SiteStatus::IDLE;
-    std::cout << "Site reset to IDLE, ready for next batch." << std::endl;
-
+    std::cout << "[INFO] SiteService: Site " << siteId
+              << " reset to IDLE after all devices picked." << std::endl;
 }
 
     return true; 
@@ -194,14 +166,16 @@ void SiteService::siteProgramming(int siteId) {
             auto& site = *sites[siteId];
             std::lock_guard<std::mutex> siteLock(site.siteMutex);
     
-            std::cout << "[Site " << siteId << "] Starting programming in 20 seconds...\n";
     
             if (site.siteStatus != SiteStatus::ACTIVE) {
-                std::cout << "[Site " << siteId << "] Site is not active, skipping programming.\n";
-                return;
+              std::cout << "[WARN] SiteService: Programming aborted. Site "
+                        << siteId << " not active." << std::endl;
+              return;
             }
+            std::cout << "[INFO] SiteService: Programming started for Site "
+                      << siteId << "." << std::endl;
         } 
-    std::this_thread::sleep_for(std::chrono::seconds(20));
+    std::this_thread::sleep_for(std::chrono::seconds(5)); // Simulate programming delay
 
     auto& site = *sites[siteId];
 
@@ -212,28 +186,20 @@ void SiteService::siteProgramming(int siteId) {
             socket.isSocketReadyForPick = true;
             bool value = rand() % 10 < 8; 
             socket.programmingResult = value ? SocketProgrammingResult::PASSED : SocketProgrammingResult::FAILED;
-            std::cout << "[Socket " << socket.socketId << "] Programming result: "
-                      << (value ? "PASSED" : "FAILED") << "\n";
-            std::cout << "[Socket " << socket.socketId << "] Result: "
-            << (value ? "PASSED" : "FAILED") << "\n";
+            std::cout << "[INFO] SiteService: Socket " << socket.socketId
+                      << " programming " << (value ? "PASSED" : "FAILED") << "."
+                      << std::endl;
         }
     }
 
     {
         std::lock_guard<std::mutex> siteLock(site.siteMutex);
         site.siteStatus = SiteStatus::COMPLETED;
-        std::cout << "[Site " << siteId << "] Programming completed. Status set to COMPLETED.\n";
+        std::cout << "[INFO] SiteService: Site " << siteId
+                  << " programming complete. Status = COMPLETED." << std::endl;
     }
 }
 
-// std::vector<SiteModel> SiteService::getSitesStatus() {
-//     std::vector<SiteModel> status;
-//     for (auto& site : sites) {
-//         std::lock_guard<std::mutex> siteLock(site.siteMutex);
-//         status.push_back(site);
-//     }
-//     return status;
-// }
 
 std::vector<SiteStatusData> SiteService::getSiteStatusById(int siteId) {
     std::vector<SiteStatusData> siteStatusResult;
@@ -244,8 +210,6 @@ std::vector<SiteStatusData> SiteService::getSiteStatusById(int siteId) {
     std::lock_guard<std::mutex> siteLock(site.siteMutex);
     statusData.siteId = site.siteId;
     statusData.siteStatus = site.siteStatus;
-    std::cout << "[Status API] Site " << siteId << " status: " 
-    << static_cast<int>(site.siteStatus) << std::endl;
     for (auto& socketPtr : site.sockets) {
         auto& socket = *socketPtr;
         std::lock_guard<std::mutex> socketLock(socket.socketMutex);
@@ -255,10 +219,6 @@ std::vector<SiteStatusData> SiteService::getSiteStatusById(int siteId) {
         socketStatus.isSocketReadyForPick = socket.isSocketReadyForPick;
         socketStatus.isSocketPicked = socket.isSocketPicked;
         socketStatus.programmingResult = socket.programmingResult;
-        std::cout << "[Socket " << socket.socketId << "] Placed=" << socket.isSocketPlaced
-        << ", ReadyForPick=" << socket.isSocketReadyForPick
-        << ", Picked=" << socket.isSocketPicked
-        << ", Result=" << static_cast<int>(socket.programmingResult) << std::endl;
         statusData.sockets.push_back(socketStatus);
     }
     siteStatusResult.push_back(statusData);

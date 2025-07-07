@@ -1,5 +1,5 @@
 #include "SiteDTOMapper.hpp"
-
+/// @brief converting SiteStatusData to SiteDto.
 oatpp::Object<SiteDto> SiteDtoMapper::toDto(const SiteStatusData& site) {
   auto siteDto = SiteDto::createShared();
   siteDto->siteId = site.siteId;

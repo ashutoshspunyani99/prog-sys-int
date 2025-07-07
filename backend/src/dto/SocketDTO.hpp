@@ -6,6 +6,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/// @brief DTO representing the state of a socket.
 class SocketDto : public oatpp::DTO {
   DTO_INIT(SocketDto, DTO)
 
@@ -16,6 +17,7 @@ class SocketDto : public oatpp::DTO {
   DTO_FIELD(String, programmingResult);
 };
 
+/// @brief DTO containing a list of socket IDs as a response.
 class SocketListDto : public oatpp::DTO {
   DTO_INIT(SocketListDto, DTO)
 

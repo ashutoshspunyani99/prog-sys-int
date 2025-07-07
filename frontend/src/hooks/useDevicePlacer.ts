@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useApiWrapper } from './useApiWrapper';
 
 export const useDevicePlacer = ({
@@ -15,16 +15,16 @@ export const useDevicePlacer = ({
     placeDevice: (socketId: number) => Promise<any>;
 }) => {
     const apiWrapper = useApiWrapper();
+    const placedSocketsRef = useRef<Set<number>>(new Set());
     useEffect(() => {
-        console.log("Device Placer Hook initialized");
+        console.info('[DevicePlacer] Polling started');
+
 
         const interval = setInterval(() => {
             if (!jobRunning || !robotEnabled) return;
 
             const runPlacement = async () => {
-                console.log("runPlacement triggered");
                 try {
-                    console.log("Checking for devices to place...");
                     const resp = await apiWrapper(() => getReadyToPlace(), {
                         context: 'getReadyToPlace',
                         notifyFailure: true,
@@ -33,12 +33,16 @@ export const useDevicePlacer = ({
                     const placeSockets: number[] = Array.isArray(resp?.data?.data) ? resp!.data!.data : [];
 
                     for (const socketId of placeSockets) {
+                        if (placedSocketsRef.current.has(socketId)) {
+                            continue; 
+                          }
+                        placedSocketsRef.current.add(socketId);
+                        setTimeout(() => placedSocketsRef.current.delete(socketId), 5000);
                         await new Promise((res) => setTimeout(res, 3000));
                         await apiWrapper(() => placeDevice(socketId), {
-                            context: 'placeDevice',
+                            context: `placeDevice [Socket ${socketId}]`,
                             notifySuccess: true,
                         });
-                        console.log(`Placed device at socket ${socketId}`);
                         await fetchSockets();
                     }
                 } catch (err) {
@@ -48,7 +52,7 @@ export const useDevicePlacer = ({
                         'response' in err &&
                         (err as any).response?.status !== 404
                     ) {
-                        console.error('Pick error:', (err as any).message || err);
+                        console.error('[DevicePlacer] Unexpected error:', err);
                     }
                 }
             };
@@ -56,7 +60,11 @@ export const useDevicePlacer = ({
             runPlacement();
         }, 5000);
 
-        return () => clearInterval(interval);
+        return () => {
+            console.info('[DevicePlacer] Polling stopped');
+            clearInterval(interval);
+            placedSocketsRef.current.clear();
+        };
     }, [jobRunning, robotEnabled]);
 
 };

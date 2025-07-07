@@ -6,6 +6,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/// @brief Basic response DTO with status and message only.
 class ResponseDto : public oatpp::DTO {
 
   DTO_INIT(ResponseDto, DTO)
@@ -14,6 +15,8 @@ class ResponseDto : public oatpp::DTO {
   DTO_FIELD(String, message);
 };
 
+/// @brief Generic response DTO with additional data payload.
+/// @tparam T Type of the `data` field.
 template <typename T>
 class ResponseDataDto : public oatpp::DTO {
   DTO_INIT(ResponseDataDto<T>, DTO)

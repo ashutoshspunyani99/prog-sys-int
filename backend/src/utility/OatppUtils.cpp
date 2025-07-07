@@ -1,7 +1,7 @@
 #include "OatppUtils.hpp"
 
 namespace OatppUtils {
-
+/// @brief Converts a vector of integers to an oatpp Vector of Int32.
 oatpp::Vector<oatpp::Int32> toOatppVector(const std::vector<int>& input) {
   auto output = oatpp::Vector<oatpp::Int32>::createShared();
   for (int val : input) {
@@ -10,7 +10,7 @@ oatpp::Vector<oatpp::Int32> toOatppVector(const std::vector<int>& input) {
   return output;
 }
 
-
+/// @brief Converts an oatpp Vector of Int32 to a vector of integers.
 oatpp::web::protocol::http::Status getHttpStatus(int code) {
     using oatpp::web::protocol::http::Status;
     switch(code) {
