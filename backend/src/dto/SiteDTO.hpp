@@ -8,7 +8,7 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 class SiteDto : public oatpp::DTO {
-  DTO_INIT(SiteDto, DTO);
+  DTO_INIT(SiteDto, DTO)
 
   DTO_FIELD(Int32, siteId);
   DTO_FIELD(String, siteStatus);
@@ -17,7 +17,7 @@ class SiteDto : public oatpp::DTO {
 
 class ProgrammingSitesResponseDto : public oatpp::DTO {
 
-  DTO_INIT(ProgrammingSitesResponseDto, DTO);
+  DTO_INIT(ProgrammingSitesResponseDto, DTO)
   DTO_FIELD(Int32, statusCode);
   DTO_FIELD(String, message);
   DTO_FIELD(Vector<oatpp::Object<SiteDto>>, data);

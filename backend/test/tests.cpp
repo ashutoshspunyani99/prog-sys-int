@@ -1,10 +1,18 @@
 
 #include "MyControllerTest.hpp"
+#include "JobControllerTest.hpp"
+#include "ProgrammingControllerTest.hpp"
+#include "RobotControllerTest.hpp"
+
 
 #include <iostream>
 
-void runTests() {
+    void
+    runTests() {
   OATPP_RUN_TEST(MyControllerTest);
+  OATPP_RUN_TEST(JobControllerTest);
+  OATPP_RUN_TEST(ProgrammingControllerTest);
+  OATPP_RUN_TEST(RobotControllerTest);
 }
 
 int main() {
