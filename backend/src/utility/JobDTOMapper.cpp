@@ -1,5 +1,8 @@
 #include "utility/JobDTOMapper.hpp"
 
+/// @brief Converts JobData to JobStatusDto.
+/// @param jobData The JobData instance containing job runtime information.
+/// @return A shared pointer to a JobStatusDto containing the job status and quantities.
 oatpp::Object<JobStatusDto> JobDTOMapper::toDto(const JobData& jobData) {
   auto jobDto = JobStatusDto::createShared();
   jobDto->requiredQuantity = jobData.requiredQuantity;
