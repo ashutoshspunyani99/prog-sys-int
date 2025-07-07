@@ -31,22 +31,25 @@ public:
         siteAdapter(std::make_shared<SiteAdapter>(siteService)) {}
 
 public:
-  
+  ADD_CORS(readyToPlace);
   ENDPOINT("GET", "api/robot/ready-to-place", readyToPlace) {
     auto responseWrapper = siteAdapter->getReadyToPlaceSocketsResponse();
     return createDtoResponse(responseWrapper.second, responseWrapper.first);
   }
 
+  ADD_CORS(readyToPick);
   ENDPOINT("GET", "api/robot/ready-to-pick", readyToPick) {
     auto responseWrapper = siteAdapter->getReadyToPickSocketsResponse();
     return createDtoResponse(responseWrapper.second, responseWrapper.first);
   }
   
+  ADD_CORS(devicePlaced);
   ENDPOINT("POST", "api/robot/device-placed", devicePlaced,QUERY(Int32, socketId)) {
     auto responseWrapper = siteAdapter->placeDeviceResponse(socketId);
     return createDtoResponse(responseWrapper.second, responseWrapper.first);
   }
 
+  ADD_CORS(devicePicked);
   ENDPOINT("POST", "api/robot/device-picked", devicePicked,QUERY(Int32, socketId)) {
     auto responseWrapper = siteAdapter->pickDeviceResponse(socketId);
     return createDtoResponse(responseWrapper.second, responseWrapper.first);

@@ -15,9 +15,15 @@ bool SiteService::ensureJobRunning()  {
     return true;
 }
 
-std::vector<int> SiteService::getReadyToPlaceSockets() {
-    if (!ensureJobRunning()) return {};
+bool SiteService::isJobCompleted()  {
+    if (!jobService->isJobRunning()) {
+        std::cout << "[SiteService] Operation denied. No job is currently running.\n";
+        return false;
+    }
+    return jobService->isJobCompleted();
+}
 
+std::vector<int> SiteService::getReadyToPlaceSockets() {
     std::vector<int> readyPlacedSockets;
     for (auto& sitePtr : sites) {
         auto& site = *sitePtr;
@@ -34,7 +40,6 @@ std::vector<int> SiteService::getReadyToPlaceSockets() {
 }
 
 std::vector<int> SiteService::getReadyToPickSockets() {
-    if (!ensureJobRunning()) return {};
     std::vector<int> readyPickedSockets;
     for (auto& sitePtr : sites) {
         auto& site = *sitePtr;
@@ -51,7 +56,6 @@ std::vector<int> SiteService::getReadyToPickSockets() {
 }
 
 bool SiteService::placeDevice(int socketId) {
-    if (!ensureJobRunning()) return false;
     if (socketId < 0 || socketId >= sites.size() * 4) 
         return false; 
     std::cout << "Placing device in socket: " << socketId << std::endl;
@@ -109,7 +113,6 @@ bool SiteService::placeDevice(int socketId) {
 }
 
 bool SiteService::pickDevice(int socketId) {
-    if (!ensureJobRunning()) return false;
 
     std::cout << "Picking device from socket: " << socketId << std::endl;
     if (socketId < 0 || socketId >= sites.size() * 4) 
@@ -137,7 +140,13 @@ std::lock_guard<std::mutex> socketLock(socket.socketMutex);
 if(socket.programmingResult==  SocketProgrammingResult::PASSED) {
     std::cout << "Socket programming passed, ready to pick." << std::endl;
     jobService->incrementCompletedQuantity();
+    
 }
+else if (socket.programmingResult == SocketProgrammingResult::FAILED) {
+    std::cout << "Socket programming failed, cannot pick." << std::endl;
+    jobService->incrementFailedQuantity();
+}
+
 std::cout << "Socket is ready for picking." << std::endl;
 socket.isSocketPicked = true;
 }
@@ -203,7 +212,8 @@ void SiteService::siteProgramming(int siteId) {
             socket.isSocketReadyForPick = true;
             bool value = rand() % 10 < 8; 
             socket.programmingResult = value ? SocketProgrammingResult::PASSED : SocketProgrammingResult::FAILED;
-
+            std::cout << "[Socket " << socket.socketId << "] Programming result: "
+                      << (value ? "PASSED" : "FAILED") << "\n";
             std::cout << "[Socket " << socket.socketId << "] Result: "
             << (value ? "PASSED" : "FAILED") << "\n";
         }
@@ -227,7 +237,6 @@ void SiteService::siteProgramming(int siteId) {
 
 std::vector<SiteStatusData> SiteService::getSiteStatusById(int siteId) {
     std::vector<SiteStatusData> siteStatusResult;
-    if (!ensureJobRunning()) return siteStatusResult;
     if (siteId < 0 || siteId >= sites.size()) 
         return siteStatusResult; 
     SiteStatusData statusData;

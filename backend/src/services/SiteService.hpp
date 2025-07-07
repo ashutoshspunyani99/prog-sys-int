@@ -24,6 +24,7 @@ public:
     bool placeDevice(int socketId);
     bool pickDevice(int socketId);
     bool ensureJobRunning();
+    bool isJobCompleted();
     std::vector<SiteStatusData> getSiteStatusById(int siteId);
 };
 
