@@ -7,6 +7,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/// @brief DTO representing a site and its associated sockets.
 class SiteDto : public oatpp::DTO {
   DTO_INIT(SiteDto, DTO)
 
@@ -15,6 +16,7 @@ class SiteDto : public oatpp::DTO {
   DTO_FIELD(Vector<oatpp::Object<SocketDto>>, sockets);
 };
 
+/// @brief DTO for response containing multiple programming sites.
 class ProgrammingSitesResponseDto : public oatpp::DTO {
 
   DTO_INIT(ProgrammingSitesResponseDto, DTO)

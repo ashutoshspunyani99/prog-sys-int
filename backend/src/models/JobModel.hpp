@@ -3,6 +3,13 @@
 
 #include <mutex>
 
+/// @brief Enum representing possible job statuses.
+/// Defines the current state of a job in the system.
+/// - IDLE: No job is currently active. This is the default state.
+/// - RUNNING: A job is actively in progress.
+/// - PAUSED: A job was temporarily halted and can be resumed.
+/// - COMPLETED: The job has finished processing all required items.
+/// - STOPPED: The job was manually stopped before completion.
 enum class JobStatus {
     IDLE,   
     RUNNING,  
@@ -11,6 +18,7 @@ enum class JobStatus {
     STOPPED  
 };
 
+/// @brief Struct representing job runtime data.
 struct JobData {
     int requiredQuantity;
     int completedQuantity;
@@ -19,6 +27,9 @@ struct JobData {
     JobStatus jobStatus; 
 };
 
+/// @brief Thread-safe job model used by the service layer.
+///
+/// Contains mutable job state data, protected by a mutex.
 class JobModel {
 public:
     std::mutex jobMutex;
