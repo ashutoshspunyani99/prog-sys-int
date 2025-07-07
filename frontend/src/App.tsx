@@ -1,23 +1,30 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Container, Typography, Alert } from '@mui/material';
 import {
-  startJob, pauseJob, resumeJob, stopJob, getSockets, getJobStatus,
-  getReadyToPick, getReadyToPlace, placeDevice, pickDevice
-} from './services/api.ts';
+  startJob,
+  pauseJob,
+  resumeJob,
+  stopJob,
+  getSockets,
+  getJobStatus,
+  getReadyToPick,
+  getReadyToPlace,
+  placeDevice,
+  pickDevice,
+} from './services/api';
 import JobControlPanel from './components/JobControlPanel';
 import SocketGrid from './components/SocketGrid';
 import StatsDisplay from './components/StatsDisplay';
-import { defaultJobStatus, JobState } from './models/Job.ts';
-import { JobStatus } from './models/Job.ts';
-import { Socket } from './models/Socket.ts';
-import { useDevicePlacer } from './hooks/useDevicePlacer.ts';
-import { useDevicePicker } from './hooks/useDevicePicker.ts';
-import { useApiWrapper } from './hooks/useApiWrapper.ts';
+import { defaultJobStatus, JobState, JobStatus } from './models/Job';
+import { Socket } from './models/Socket';
+import { useDevicePlacer } from './hooks/useDevicePlacer';
+import { useDevicePicker } from './hooks/useDevicePicker';
+import { useApiWrapper } from './hooks/useApiWrapper';
 
-function App() {
+const App: React.FC = () => {
   const [sockets, setSockets] = useState<Socket[]>([]);
-  const [jobRunning, setJobRunning] = useState(false);
-  const [robotEnabled, setRobotEnabled] = useState(true);
+  const [jobRunning, setJobRunning] = useState<boolean>(false);
+  const [robotEnabled, setRobotEnabled] = useState<boolean>(true);
   const [jobStats, setJobStats] = useState<JobStatus>(defaultJobStatus);
 
   const apiWrapper = useApiWrapper();
@@ -43,13 +50,13 @@ function App() {
         if (!res) continue;
         const site = res.data.data?.[0];
         if (site?.sockets?.length) {
-          const sockets = site.sockets.map((socket) => ({
+          const sockets: Socket[] = site.sockets.map((socket: any) => ({
             id: socket.socketId,
             siteId: site.siteId,
             state: site.siteStatus,
             result: socket.programmingResult,
             isSocketPlaced: socket.isSocketPlaced,
-            isSocketPicked: socket.isSocketPicked
+            isSocketPicked: socket.isSocketPicked,
           }));
           combined.push(...sockets);
         }
@@ -57,7 +64,7 @@ function App() {
 
       setSockets(combined);
     } catch (err) {
-      console.error("Failed to load sockets for both sites", err);
+      console.error('Failed to load sockets for both sites', err);
     }
   }, []);
 
@@ -67,9 +74,10 @@ function App() {
         context: 'getJobStatus',
         notifySuccess: false,
       });
-
+      console.log('Job status response:', res);
+      console.log('Job status response data:', res?.data);
       if (!res || !res.data?.data) {
-        console.warn("Job status response is undefined or empty.");
+        console.log('Job status response is undefined or empty.');
         return;
       }
 
@@ -80,16 +88,16 @@ function App() {
         requiredQuantity: job.requiredQuantity || 0,
         completedQuantity: job.completedQuantity || 0,
         passedQuantity: job.passedQuantity || 0,
-        failedQuantity: job.failedQuantity || 0
+        failedQuantity: job.failedQuantity || 0,
       });
-
+      console.log('Job stats:', JobState.RUNNING, job.jobStatus);
       setJobRunning(job.jobStatus === JobState.RUNNING);
 
       if (job.jobStatus === JobState.RUNNING) {
         await fetchAndSetAllSockets();
       }
     } catch (err) {
-      console.error("Failed to get job status", err);
+      console.error('Failed to get job status', err);
     }
   }, [fetchAndSetAllSockets]);
 
@@ -97,57 +105,47 @@ function App() {
     await apiWrapper(() => startJob(qty), {
       context: 'startJob',
       notifySuccess: true,
-      notifyFailure: true
+      notifyFailure: true,
     });
     await loadJobStatus();
     await fetchAndSetAllSockets();
   };
 
   const handlePause = async () => {
-    try {
-      await apiWrapper(() => pauseJob(), {
-        context: 'pauseJob',
-        notifySuccess: true,
-        notifyFailure: true,
-      });
-      await loadJobStatus();
-    } catch (err) {
-      console.error("Failed to pause job", err);
-    }
+    await apiWrapper(() => pauseJob(), {
+      context: 'pauseJob',
+      notifySuccess: true,
+      notifyFailure: true,
+    });
+    await loadJobStatus();
   };
 
   const handleResume = async () => {
-    try {
-      await apiWrapper(() => resumeJob(), {
-        context: 'resumeJob',
-        notifySuccess: true,
-        notifyFailure: true,
-      });
-      await loadJobStatus();
-      await fetchAndSetAllSockets();
-    } catch (err) {
-      console.error("Failed to resume job", err);
-    }
+    await apiWrapper(() => resumeJob(), {
+      context: 'resumeJob',
+      notifySuccess: true,
+      notifyFailure: true,
+    });
+    await loadJobStatus();
+    await fetchAndSetAllSockets();
   };
 
   const handleStop = async () => {
-    try {
-      await apiWrapper(() => stopJob(), {
-        context: 'stopJob',
-        notifySuccess: true,
-        notifyFailure: true,
-      });
-      await loadJobStatus();
-      await fetchAndSetAllSockets();
-    } catch (err) {
-      console.error("Failed to stop job", err);
-    }
+    await apiWrapper(() => stopJob(), {
+      context: 'stopJob',
+      notifySuccess: true,
+      notifyFailure: true,
+    });
+    await loadJobStatus();
+    await fetchAndSetAllSockets();
   };
 
   useEffect(() => {
-    fetchAndSetAllSockets();
-    loadJobStatus();
-  }, [fetchAndSetAllSockets, loadJobStatus]);
+    const init = async () => {
+      await fetchAndSetAllSockets();
+    };
+    init();
+  }, []);
 
   useEffect(() => {
     if (!jobRunning) return;
@@ -157,12 +155,12 @@ function App() {
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [jobRunning, loadJobStatus]);
+  }, [jobRunning]);
 
   useDevicePlacer({
     jobRunning,
     robotEnabled,
-    fetchSockets: () => fetchAndSetAllSockets(),
+    fetchSockets: fetchAndSetAllSockets,
     getReadyToPlace,
     placeDevice,
   });
@@ -170,14 +168,16 @@ function App() {
   useDevicePicker({
     jobRunning,
     robotEnabled,
-    fetchSockets: () => fetchAndSetAllSockets(),
+    fetchSockets: fetchAndSetAllSockets,
     getReadyToPick,
     pickDevice,
   });
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>Programming System Integration Dashboard</Typography>
+      <Typography variant="h4" gutterBottom>
+        Programming System Integration Dashboard
+      </Typography>
 
       <JobControlPanel
         onStart={handleStart}
@@ -201,17 +201,17 @@ function App() {
         </Alert>
       )}
 
-      {jobStats.jobStatus !== JobState.RUNNING && jobStats.jobStatus !== JobState.COMPLETED && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          No job is currently running.
-        </Alert>
-      )}
+      {jobStats.jobStatus !== JobState.RUNNING &&
+        jobStats.jobStatus !== JobState.COMPLETED && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            No job is currently running.
+          </Alert>
+        )}
 
       <SocketGrid sockets={sockets} />
       <StatsDisplay stats={jobStats} />
-
     </Container>
   );
-}
+};
 
 export default App;

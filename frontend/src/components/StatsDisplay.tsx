@@ -1,18 +1,32 @@
 import React from 'react';
 import { Typography, Box, LinearProgress } from '@mui/material';
+import { JobState } from 'models/Job';
 
-const StatsDisplay = ({ stats }) => {
+interface Stats {
+    jobStatus: JobState
+    requiredQuantity: number;
+    completedQuantity: number;
+    passedQuantity: number;
+    failedQuantity: number;
+}
+
+interface StatsDisplayProps {
+    stats: Stats;
+}
+
+const StatsDisplay: React.FC<StatsDisplayProps> = ({ stats }) => {
     const {
         jobStatus,
         requiredQuantity,
         completedQuantity,
         passedQuantity,
-        failedQuantity
+        failedQuantity,
     } = stats;
 
-    const progress = requiredQuantity > 0
-        ? (completedQuantity / requiredQuantity) * 100
-        : 0;
+    const progress =
+        requiredQuantity > 0
+            ? (completedQuantity / requiredQuantity) * 100
+            : 0;
 
     return (
         <Box mt={2}>

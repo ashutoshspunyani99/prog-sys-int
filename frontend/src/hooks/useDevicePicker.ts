@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useApiWrapper } from './useApiWrapper.ts';
+import { useApiWrapper } from './useApiWrapper';
 
 export const useDevicePicker = ({
     jobRunning,
@@ -25,29 +25,32 @@ export const useDevicePicker = ({
                 console.log("runPicking triggered");
                 try {
                     console.log("Checking for devices to pick...");
-                    // const resp = await getReadyToPick();
                     const resp = await apiWrapper(() => getReadyToPick(), {
                         context: 'getReadyToPick',
-                        // notifySuccess: true,
                         notifyFailure: true,
                     });
-                    const pickSockets = Array.isArray(resp?.data?.data) ? resp?.data?.data : [];
+
+                    
+                    const pickSockets: number[] = Array.isArray(resp?.data?.data) ? resp!.data!.data : [];
 
                     for (const socketId of pickSockets) {
-                        await new Promise((res) => setTimeout(res, 1000)); // fixed 1s delay
+                        await new Promise((res) => setTimeout(res, 3000)); 
 
-                        // await pickDevice(socketId);
                         await apiWrapper(() => pickDevice(socketId), {
                             context: 'pickDevice',
                             notifySuccess: true,
-                            notifyFailure: true,
                         });
                         console.log(`Picked device from socket ${socketId}`);
                         await fetchSockets();
                     }
-                } catch (err) {
-                    if (err.response?.status !== 404) {
-                        console.error("Pick error:", err.message || err);
+                } catch (err:unknown) {
+                    if (
+                        typeof err === 'object' &&
+                        err !== null &&
+                        'response' in err &&
+                        (err as any).response?.status !== 404
+                    ) {
+                        console.error('Pick error:', (err as any).message || err);
                     }
                 }
             };

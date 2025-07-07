@@ -1,14 +1,25 @@
 import React, { useState } from 'react';
 import { Button, TextField, Box, FormControlLabel, Switch } from '@mui/material';
+import { JobState } from 'models/Job';
 
-const JobControlPanel = ({
+interface JobControlPanelProps {
+    onStart: (qty: number) => void;
+    onPause: () => void;
+    onResume: () => void;
+    onStop: () => void;
+    robotEnabled: boolean;
+    setRobotEnabled: (enabled: boolean) => void;
+    jobStatus: JobState;
+  }
+
+const JobControlPanel: React.FC<JobControlPanelProps> = ({
     onStart,
     onPause,
     onResume,
     onStop,
     robotEnabled,
     setRobotEnabled,
-    jobStatus
+    jobStatus,
 }) => {
     const [quantity, setQuantity] = useState('');
 

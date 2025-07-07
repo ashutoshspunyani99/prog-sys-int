@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ApiResponse } from '../types/ApiResponse.ts';
+import { ApiResponse } from '../types/ApiResponse';
 
 const API_BASE = 'http://localhost:8000/api';
 
