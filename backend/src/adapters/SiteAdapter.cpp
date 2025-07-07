@@ -21,10 +21,10 @@ ResponseWrapper<oatpp::Vector<oatpp::Int32>> SiteAdapter::getReadyToPlaceSockets
 
   auto sockets = siteService->getReadyToPlaceSockets();
   if (sockets.empty()) {
-    res->statusCode = 404;
+    res->statusCode = 204;
     res->message = "No ready-to-place sockets found";
     res->data = {};
-    return std::make_pair(res, OatppUtils::getHttpStatus(404));
+    return std::make_pair(res, OatppUtils::getHttpStatus(204));
   }
   res->statusCode = 200;
   res->message = "Ready-to-place sockets retrieved";
@@ -51,10 +51,10 @@ SiteAdapter::getReadyToPickSocketsResponse() {
 
   auto sockets = siteService->getReadyToPickSockets();
   if (sockets.empty()) {
-    res->statusCode = 404;
+    res->statusCode = 204;
     res->message = "No ready-to-pick sockets found";
     res->data = {};
-    return std::make_pair(res, OatppUtils::getHttpStatus(404));
+    return std::make_pair(res, OatppUtils::getHttpStatus(204));
   }
   res->statusCode = 200;
   res->message = "Ready-to-pick sockets retrieved";
@@ -130,10 +130,10 @@ SiteAdapter::getProgrammingSocketsResponse(int siteId) {
 
   auto sitesData = siteService->getSiteStatusById(siteId);
   if (sitesData.empty()) {
-    res->statusCode = 404;
+    res->statusCode = 204;
     res->message = "No site found with the given ID";
     res->data = {};
-    return std::make_pair(res, OatppUtils::getHttpStatus(404));
+    return std::make_pair(res, OatppUtils::getHttpStatus(204));
   }
 
   auto siteDtos = oatpp::Vector<oatpp::Object<SiteDto>>::createShared();
