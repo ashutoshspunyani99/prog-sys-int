@@ -1,4 +1,4 @@
-# 📦 BPM Programming System Integration (Technical Assessment)
+# BPM Programming System Integration (Technical Assessment)
 
 This is a full-stack application built as part of a **technical assessment** for **BPM Microsystems**. The goal was to design and implement a simulation of an automated programming system that coordinates:
 
@@ -7,21 +7,21 @@ This is a full-stack application built as part of a **technical assessment** for
 - Simulated robotic interactions (placing and picking devices)
 
 ---
-## 🧭 System Architecture
+## System Architecture
 
 The following diagram summarizes the full-stack system design:
 
 ![System Architecture](assets/architecture-diagram.png)
 ---
-## 🚀 Features
+## Features
 
-### ✅ Backend (C++ with OATPP)
+### Backend (C++ with OATPP)
 - REST API for job management and socket programming
 - Simulated programming cycle with pass/fail outcomes
 - Modular design using adapters, DTOs, and controllers
 - In-memory socket and job state tracking
 
-### ✅ Frontend (React)
+### Frontend (React)
 - Job control: Start, Stop, Pause, Resume
 - Real-time socket status indicators
 - Visual pass/fail results per device
@@ -29,7 +29,7 @@ The following diagram summarizes the full-stack system design:
 
 ---
 
-## 🔁 System Workflow
+## System Workflow
 
 1. Operator starts a job specifying number of devices
 2. Robot places devices in available sockets via API
@@ -39,16 +39,16 @@ The following diagram summarizes the full-stack system design:
 6. Dashboard updates live, process continues until job completes
 
 ---
-## 🚀 Getting Started
+## Getting Started
 
-### 🔗 Clone the Repository
+### Clone the Repository
 
 ```bash
 git clone https://github.com/ashutoshspunyani99/prog-sys-int.git
 cd prog-sys-int
 ```
 ---
-## 🧩 Project Structure
+## Project Structure
 
 ```
 prog-sys-int/
@@ -60,9 +60,9 @@ prog-sys-int/
 
 ---
 
-## 🔧 Running the Project
+## Running the Project
 
-### 🖥 Backend
+### Backend
 **Requirements:**
 - CMake
 - C++17+
@@ -76,7 +76,7 @@ make
 ./prog-sys-int
 ```
 
-### 🌐 Frontend
+### Frontend
 **Requirements:**
 - Node.js
 - npm or yarn
@@ -89,7 +89,7 @@ npm start
 
 ---
 
-## 🔗 Key API Endpoints
+## Key API Endpoints
 
  Method | Endpoint                             | Description                                |
 |--------|--------------------------------------|--------------------------------------------|
@@ -107,7 +107,7 @@ npm start
 ---
 
 
-## 🧠 Notes
+## Notes
 
 - This simulation is designed to be **hardware-ready** — all logic could integrate with real-world robotics with minimal changes.
 - Socket states and job flow are tracked in-memory but structured to be easily extendable to persistent storage.
