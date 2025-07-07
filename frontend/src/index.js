@@ -1,15 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+import App from './App.tsx';
 import reportWebVitals from './reportWebVitals';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { SnackbarProvider } from './contexts/SnackbarProvider.tsx';
+
 const theme = createTheme();
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <ThemeProvider theme={theme}>
     <React.StrictMode>
-      <App />
+      <SnackbarProvider>
+        <App />
+      </SnackbarProvider>
     </React.StrictMode>
   </ThemeProvider>
 );
