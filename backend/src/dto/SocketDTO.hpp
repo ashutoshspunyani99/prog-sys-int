@@ -7,7 +7,7 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 class SocketDto : public oatpp::DTO {
-  DTO_INIT(SocketDto, DTO);
+  DTO_INIT(SocketDto, DTO)
 
   DTO_FIELD(Int32, socketId);
   DTO_FIELD(Boolean, isSocketPlaced);

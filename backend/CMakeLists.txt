@@ -63,6 +63,12 @@ add_executable(${project_name}-test
         test/app/MyApiTestClient.hpp
         test/MyControllerTest.cpp
         test/MyControllerTest.hpp
+        test/JobControllerTest.cpp
+        test/JobControllerTest.hpp
+        test/ProgrammingControllerTest.cpp
+        test/ProgrammingControllerTest.hpp
+        test/RobotControllerTest.cpp
+        test/RobotControllerTest.hpp
 )
 
 target_link_libraries(${project_name}-test ${project_name}-lib)

@@ -8,7 +8,7 @@
 
 class ResponseDto : public oatpp::DTO {
 
-  DTO_INIT(ResponseDto, DTO);
+  DTO_INIT(ResponseDto, DTO)
 
   DTO_FIELD(Int32, statusCode);
   DTO_FIELD(String, message);
@@ -16,7 +16,7 @@ class ResponseDto : public oatpp::DTO {
 
 template <typename T>
 class ResponseDataDto : public oatpp::DTO {
-  DTO_INIT(ResponseDataDto<T>, DTO);
+  DTO_INIT(ResponseDataDto<T>, DTO)
 
   DTO_FIELD(Int32, statusCode);
   DTO_FIELD(String, message);

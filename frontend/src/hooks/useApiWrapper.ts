@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
-import { useSnackbar } from '../contexts/SnackbarProvider.tsx';
-import { ApiResponse } from '../types/ApiResponse.ts';
+import { useSnackbar } from '../contexts/SnackbarProvider';
+import { ApiResponse } from '../types/ApiResponse';
 
 export function useApiWrapper() {
     const snackbar = useSnackbar();
@@ -26,7 +26,6 @@ export function useApiWrapper() {
         try {
             const res = await fn();
 
-            // ✅ Get success message from response if available
             const successMessage = res?.data?.message;
             if (notifySuccess && successMessage) {
                 snackbar.showSnackbar(successMessage, 'success');

@@ -1,43 +1,61 @@
 import React from 'react';
 import { Grid, Paper, Typography, Box } from '@mui/material';
-import { ProgrammingResult } from '../models/Socket.ts';
+import { ProgrammingResult, Socket } from '../models/Socket';
 
-const siteStatusColors = {
+interface SiteGroup {
+    siteStatus: keyof typeof siteStatusColors;
+    sockets: Socket[];
+}
+
+interface Props {
+    sockets: Socket[];
+}
+
+const siteStatusColors: Record<string, string> = {
     IDLE: '#f5f5f5',
     ACTIVE: '#fff3e0',
     COMPLETED: '#e8f5e9',
 };
 
-const getSocketColor = (result) => {
+const getSocketColor = (result: ProgrammingResult): string => {
     switch (result) {
-        case ProgrammingResult.PASSED: return '#c8e6c9';
-        case ProgrammingResult.FAILED: return '#ffcdd2';
-        case ProgrammingResult.NONE: return '#eeeeee';
-        default: return '#f0f0f0';
+        case ProgrammingResult.PASSED:
+            return '#c8e6c9';
+        case ProgrammingResult.FAILED:
+            return '#ffcdd2';
+        case ProgrammingResult.NONE:
+            return '#eeeeee';
+        default:
+            return '#f0f0f0';
     }
 };
 
-const getSocketBorder = (socket) => {
+const getSocketBorder = (socket: Socket): string => {
     if (socket.isSocketPicked) return '3px solid #4caf50';
     if (socket.isSocketPlaced) return '3px dashed #ff9800';
     return '1px solid #ccc';
 };
 
-const SocketGrid = ({ sockets }) => {
-    const groupedBySite = sockets.reduce((acc, socket) => {
-        acc[socket.siteId] = acc[socket.siteId] || { siteStatus: socket.state, sockets: [] };
+const SocketGrid: React.FC<Props> = ({ sockets }) => {
+    const groupedBySite: Record<number, SiteGroup> = sockets.reduce((acc: Record<number, SiteGroup>, socket: Socket) => {
+        if (!acc[socket.siteId]) {
+            acc[socket.siteId] = {
+                siteStatus: socket.state as keyof typeof siteStatusColors,
+                sockets: [],
+            };
+        }
         acc[socket.siteId].sockets.push(socket);
         return acc;
     }, {});
 
     return (
         <Box>
-
+            {/* Legend */}
             <Box
                 mb={3}
                 p={2}
                 borderRadius={2}
-                bgcolor="#e3f2fd" // Light blue background for legend
+                bgcolor="#e3f2fd"
                 border="1px solid #90caf9"
             >
                 <Typography variant="subtitle2" fontWeight="bold" mb={1}>
@@ -59,7 +77,6 @@ const SocketGrid = ({ sockets }) => {
                     </Box>
                 </Box>
 
-                {/* Device Operations */}
                 <Box mb={2}>
                     <Typography variant="body2" fontWeight="bold"> Device Operations</Typography>
                     <Box display="flex" gap={2} flexWrap="wrap" mt={1}>
@@ -76,7 +93,6 @@ const SocketGrid = ({ sockets }) => {
                     </Box>
                 </Box>
 
-                {/* Programming Results */}
                 <Box>
                     <Typography variant="body2" fontWeight="bold"> Programming Results</Typography>
                     <Box display="flex" gap={2} flexWrap="wrap" mt={1}>
@@ -97,10 +113,9 @@ const SocketGrid = ({ sockets }) => {
                         </Box>
                     </Box>
                 </Box>
-
             </Box>
 
-
+            {/* Grid by site */}
             {Object.entries(groupedBySite).map(([siteId, siteGroup]) => (
                 <Box
                     key={siteId}
@@ -115,9 +130,9 @@ const SocketGrid = ({ sockets }) => {
                     <Typography variant="h6" gutterBottom>
                         Site {siteId} ({siteGroup.siteStatus})
                     </Typography>
-                    <Grid container spacing={2}>
+                    {/* <Grid container spacing={2}>
                         {siteGroup.sockets.map((socket, index) => (
-                            <Grid item xs={3} key={`${socket.siteId}-${socket.id}`}>
+                            <Grid item xs={3 as const} key={`${socket.siteId}-${socket.id}`}>
                                 <Paper
                                     elevation={3}
                                     style={{
@@ -140,7 +155,38 @@ const SocketGrid = ({ sockets }) => {
                                 </Paper>
                             </Grid>
                         ))}
-                    </Grid>
+                    </Grid> */}
+
+                    <Box display="flex" flexWrap="wrap" gap={2}>
+                        {siteGroup.sockets.map((socket, index) => (
+                            <Box
+                                key={`${socket.siteId}-${socket.id}`}
+                                flexBasis="23%" 
+                                minWidth="200px"
+                            >
+                                <Paper
+                                    elevation={3}
+                                    style={{
+                                        padding: '1rem',
+                                        backgroundColor: getSocketColor(socket.result),
+                                        textAlign: 'center',
+                                        border: getSocketBorder(socket),
+                                    }}
+                                >
+                                    <Typography variant="subtitle2">
+                                        #{index} | Socket {socket.id}
+                                    </Typography>
+                                    <Typography variant="body2">Result: {socket.result || 'NONE'}</Typography>
+                                    <Typography variant="body2">
+                                        Placed: {socket.isSocketPlaced ? 'Yes' : 'No'}
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        Picked: {socket.isSocketPicked ? 'Yes' : 'No'}
+                                    </Typography>
+                                </Paper>
+                            </Box>
+                        ))}
+                    </Box>
                 </Box>
             ))}
         </Box>

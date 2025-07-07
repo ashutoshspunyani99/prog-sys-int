@@ -11,6 +11,10 @@
 
 #include "oatpp/macro/component.hpp"
 
+#include "services/JobService.hpp"
+#include "services/SiteService.hpp"
+#include "adapters/SiteAdapter.hpp"
+
 /**
  * Test Components config
  */
@@ -70,6 +74,23 @@ public:
 
   }());
 
+  // JobService
+  OATPP_CREATE_COMPONENT(std::shared_ptr<JobService>, jobService)
+  ([] { return std::make_shared<JobService>(); }());
+
+  // SiteService using JobService
+  OATPP_CREATE_COMPONENT(std::shared_ptr<SiteService>, siteService)
+  ([] {
+    OATPP_COMPONENT(std::shared_ptr<JobService>, jobService);
+    return std::make_shared<SiteService>(jobService);
+  }());
+
+  // SiteAdapter using SiteService
+  OATPP_CREATE_COMPONENT(std::shared_ptr<SiteAdapter>, siteAdapter)
+  ([] {
+    OATPP_COMPONENT(std::shared_ptr<SiteService>, siteService);
+    return std::make_shared<SiteAdapter>(siteService);
+  }());
 };
 
 

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useApiWrapper } from './useApiWrapper.ts'; 
+import { useApiWrapper } from './useApiWrapper';
 
 export const useDevicePlacer = ({
     jobRunning,
@@ -14,7 +14,7 @@ export const useDevicePlacer = ({
     getReadyToPlace: () => Promise<any>;
     placeDevice: (socketId: number) => Promise<any>;
 }) => {
-     const apiWrapper = useApiWrapper();
+    const apiWrapper = useApiWrapper();
     useEffect(() => {
         console.log("Device Placer Hook initialized");
 
@@ -25,37 +25,38 @@ export const useDevicePlacer = ({
                 console.log("runPlacement triggered");
                 try {
                     console.log("Checking for devices to place...");
-                    // const resp = await getReadyToPlace();
                     const resp = await apiWrapper(() => getReadyToPlace(), {
                         context: 'getReadyToPlace',
-                        // notifySuccess: true,
                         notifyFailure: true,
-                      });
-                      
-                    const placeSockets = Array.isArray(resp?.data?.data) ? resp?.data?.data : [];
+                    });
+
+                    const placeSockets: number[] = Array.isArray(resp?.data?.data) ? resp!.data!.data : [];
 
                     for (const socketId of placeSockets) {
-                        await new Promise((res) => setTimeout(res, 1000)); 
-                        // await placeDevice(socketId);
+                        await new Promise((res) => setTimeout(res, 3000));
                         await apiWrapper(() => placeDevice(socketId), {
                             context: 'placeDevice',
                             notifySuccess: true,
-                            notifyFailure: true,
                         });
                         console.log(`Placed device at socket ${socketId}`);
                         await fetchSockets();
                     }
                 } catch (err) {
-                    if (err.response?.status !== 404) {
-                        console.error("Place error:", err.message || err);
+                    if (
+                        typeof err === 'object' &&
+                        err !== null &&
+                        'response' in err &&
+                        (err as any).response?.status !== 404
+                    ) {
+                        console.error('Pick error:', (err as any).message || err);
                     }
                 }
             };
 
-            runPlacement(); 
+            runPlacement();
         }, 5000);
 
         return () => clearInterval(interval);
     }, [jobRunning, robotEnabled]);
-    
+
 };
