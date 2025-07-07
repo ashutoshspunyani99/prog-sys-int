@@ -64,7 +64,7 @@ const App: React.FC = () => {
 
       setSockets(combined);
     } catch (err) {
-      console.error('Failed to load sockets for both sites', err);
+      console.error('[App] Failed to fetch sockets from both sites:', err);
     }
   }, []);
 
@@ -74,10 +74,9 @@ const App: React.FC = () => {
         context: 'getJobStatus',
         notifySuccess: false,
       });
-      console.log('Job status response:', res);
-      console.log('Job status response data:', res?.data);
+      
       if (!res || !res.data?.data) {
-        console.log('Job status response is undefined or empty.');
+        console.warn('[App] Job status unavailable or empty.');
         return;
       }
 
@@ -90,14 +89,13 @@ const App: React.FC = () => {
         passedQuantity: job.passedQuantity || 0,
         failedQuantity: job.failedQuantity || 0,
       });
-      console.log('Job stats:', JobState.RUNNING, job.jobStatus);
       setJobRunning(job.jobStatus === JobState.RUNNING);
 
       if (job.jobStatus === JobState.RUNNING) {
         await fetchAndSetAllSockets();
       }
     } catch (err) {
-      console.error('Failed to get job status', err);
+      console.error('[App] Failed to fetch job status:', err);
     }
   }, [fetchAndSetAllSockets]);
 

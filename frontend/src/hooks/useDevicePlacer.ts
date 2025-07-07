@@ -16,15 +16,14 @@ export const useDevicePlacer = ({
 }) => {
     const apiWrapper = useApiWrapper();
     useEffect(() => {
-        console.log("Device Placer Hook initialized");
+        console.info('[DevicePlacer] Polling started');
+
 
         const interval = setInterval(() => {
             if (!jobRunning || !robotEnabled) return;
 
             const runPlacement = async () => {
-                console.log("runPlacement triggered");
                 try {
-                    console.log("Checking for devices to place...");
                     const resp = await apiWrapper(() => getReadyToPlace(), {
                         context: 'getReadyToPlace',
                         notifyFailure: true,
@@ -35,10 +34,9 @@ export const useDevicePlacer = ({
                     for (const socketId of placeSockets) {
                         await new Promise((res) => setTimeout(res, 3000));
                         await apiWrapper(() => placeDevice(socketId), {
-                            context: 'placeDevice',
+                            context: `placeDevice [Socket ${socketId}]`,
                             notifySuccess: true,
                         });
-                        console.log(`Placed device at socket ${socketId}`);
                         await fetchSockets();
                     }
                 } catch (err) {
@@ -48,7 +46,7 @@ export const useDevicePlacer = ({
                         'response' in err &&
                         (err as any).response?.status !== 404
                     ) {
-                        console.error('Pick error:', (err as any).message || err);
+                        console.error('[DevicePlacer] Unexpected error:', err);
                     }
                 }
             };
@@ -56,7 +54,10 @@ export const useDevicePlacer = ({
             runPlacement();
         }, 5000);
 
-        return () => clearInterval(interval);
+        return () => {
+            console.info('[DevicePlacer] Polling stopped');
+            clearInterval(interval)
+        };
     }, [jobRunning, robotEnabled]);
 
 };
