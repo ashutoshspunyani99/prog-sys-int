@@ -47,7 +47,7 @@ public:
   /// @brief Checks if the job is completed.
   /// @return True if job status is COMPLETED, otherwise false.
   bool isJobCompleted();
-  
+
   /// @brief Increments the failed quantity if job is running.
   void incrementFailedQuantity();
 };
